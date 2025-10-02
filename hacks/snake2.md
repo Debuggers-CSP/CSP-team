@@ -5,10 +5,8 @@ permalink: /snake
 ---
 
 <style>
+
     body{
-        background-color: #121212;
-        color: #eee;
-        font-family: Arial, sans-serif;
     }
     .wrap{
         margin-left: auto;
@@ -16,10 +14,12 @@ permalink: /snake
     }
 
     canvas{
+        display: none;
         border-style: solid;
         border-width: 10px;
         border-color: #FFFFFF;
-        display: none;
+        /* Added glowing effect wrapper (will be via JS) */
+        box-shadow: 0 0 15px 5px #00FF00;
     }
     canvas:focus{
         outline: none;
@@ -72,8 +72,7 @@ permalink: /snake
 
 <h2>Snake</h2>
 <div class="container">
-    <p class="fs-4">Score: <span id="score_value">0</span></p>
-    <p class="fs-4">Lives: <span id="lives_value">3</span></p>
+    <p class="fs-4">Score: <span id="score_value">0</span> | Lives: <span id="lives_value">3</span></p>
     <div class="container bg-secondary" style="text-align:center;">
         <!-- Main Menu -->
         <div id="menu" class="py-4 text-light">
@@ -119,7 +118,6 @@ permalink: /snake
         // Canvas & Context
         const canvas = document.getElementById("snake");
         const ctx = canvas.getContext("2d");
-
         // HTML Game IDs
         const SCREEN_SNAKE = 0;
         const screen_snake = document.getElementById("snake");
@@ -127,20 +125,17 @@ permalink: /snake
         const ele_lives = document.getElementById("lives_value");
         const speed_setting = document.getElementsByName("speed");
         const wall_setting = document.getElementsByName("wall");
-
         // HTML Screen IDs (div)
         const SCREEN_MENU = -1, SCREEN_GAME_OVER=1, SCREEN_SETTING=2;
         const screen_menu = document.getElementById("menu");
         const screen_game_over = document.getElementById("gameover");
         const screen_setting = document.getElementById("setting");
-
         // HTML Event IDs (a tags)
         const button_new_game = document.getElementById("new_game");
         const button_new_game1 = document.getElementById("new_game1");
         const button_new_game2 = document.getElementById("new_game2");
         const button_setting_menu = document.getElementById("setting_menu");
         const button_setting_menu1 = document.getElementById("setting_menu1");
-
         // Game Control
         const BLOCK = 10;   // size of block rendering
         let SCREEN = SCREEN_MENU;
@@ -148,20 +143,17 @@ permalink: /snake
         let snake_dir;
         let snake_next_dir;
         let snake_speed;
-        let food1 = {x: 0, y: 0};
-        let food2 = {x: 0, y: 0};
+        let food = [];
         let score;
-        let lives;
         let wall;
-
-        // Colors
-        let bgColor = "#222222";
-        let snakeColor = "#00FF00";
-        let foodColor1 = "#FF4500";
-        let foodColor2 = "#1E90FF";
-
+        let lives;
+        let glowColor = "#00FF00";  // glow color for snake
         /* Display Control */
         /////////////////////////////////////////////////////////////
+        // 0 for the game
+        // 1 for the main menu
+        // 2 for the settings screen
+        // 3 for the game over screen
         let showScreen = function(screen_opt){
             SCREEN = screen_opt;
             switch(screen_opt){
@@ -170,6 +162,7 @@ permalink: /snake
                     screen_menu.style.display = "none";
                     screen_setting.style.display = "none";
                     screen_game_over.style.display = "none";
+                    screen_snake.focus(); // focus canvas for keyboard input
                     break;
                 case SCREEN_GAME_OVER:
                     screen_snake.style.display = "block";
@@ -191,7 +184,6 @@ permalink: /snake
                     break;
             }
         }
-
         /* Actions and Events  */
         /////////////////////////////////////////////////////////////
         window.onload = function(){
@@ -201,14 +193,8 @@ permalink: /snake
             button_new_game2.onclick = function(){newGame();};
             button_setting_menu.onclick = function(){showScreen(SCREEN_SETTING);};
             button_setting_menu1.onclick = function(){showScreen(SCREEN_SETTING);};
-
-            // Set defaults
+            // speed
             setSnakeSpeed(120);
-            setWall(1);
-            lives = 3;
-            updateLives();
-
-            // Speed setting listeners
             for(let i = 0; i < speed_setting.length; i++){
                 speed_setting[i].addEventListener("click", function(){
                     for(let i = 0; i < speed_setting.length; i++){
@@ -218,7 +204,8 @@ permalink: /snake
                     }
                 });
             }
-            // Wall setting listeners
+            // wall setting
+            setWall(1);
             for(let i = 0; i < wall_setting.length; i++){
                 wall_setting[i].addEventListener("click", function(){
                     for(let i = 0; i < wall_setting.length; i++){
@@ -228,27 +215,24 @@ permalink: /snake
                     }
                 });
             }
-
-            // Activate window events
+            // global keyboard listener
             window.addEventListener("keydown", function(evt) {
                 if(evt.code === "Space"){
                     if(SCREEN !== SCREEN_SNAKE){
                         newGame();
                     }
                 }
-            }, true);
-
-            // Show main menu initially
-            showScreen(SCREEN_MENU);
+                if(SCREEN === SCREEN_SNAKE){
+                    changeDir(evt.keyCode);
+                }
+            });
         }
-
-        /* Snake Game Loop */
+        /* Snake is on the Go (Driver Function)  */
         /////////////////////////////////////////////////////////////
         let mainLoop = function(){
             let _x = snake[0].x;
             let _y = snake[0].y;
-            snake_dir = snake_next_dir;
-
+            snake_dir = snake_next_dir;   // read async event key
             // Direction 0 - Up, 1 - Right, 2 - Down, 3 - Left
             switch(snake_dir){
                 case 0: _y--; break;
@@ -256,4 +240,219 @@ permalink: /snake
                 case 2: _y++; break;
                 case 3: _x--; break;
             }
-            snake
+            snake.pop(); // tail is removed
+            snake.unshift({x: _x, y: _y}); // head is new in new position/orientation
+
+            // Wall Checker
+            if(wall === 1){
+                // Wall on, Game over test
+                if (snake[0].x < 0 || snake[0].x === canvas.width / BLOCK || snake[0].y < 0 || snake[0].y === canvas.height / BLOCK){
+                    loseLife();
+                    if(lives <= 0){
+                        showScreen(SCREEN_GAME_OVER);
+                        return;
+                    }
+                }
+            }else{
+                // Wall Off, Circle around
+                for(let i = 0, x = snake.length; i < x; i++){
+                    if(snake[i].x < 0){
+                        snake[i].x = snake[i].x + (canvas.width / BLOCK);
+                    }
+                    if(snake[i].x === canvas.width / BLOCK){
+                        snake[i].x = snake[i].x - (canvas.width / BLOCK);
+                    }
+                    if(snake[i].y < 0){
+                        snake[i].y = snake[i].y + (canvas.height / BLOCK);
+                    }
+                    if(snake[i].y === canvas.height / BLOCK){
+                        snake[i].y = snake[i].y - (canvas.height / BLOCK);
+                    }
+                }
+            }
+            // Snake vs Snake checker
+            for(let i = 1; i < snake.length; i++){
+                // Game over test
+                if (snake[0].x === snake[i].x && snake[0].y === snake[i].y){
+                    loseLife();
+                    if(lives <= 0){
+                        showScreen(SCREEN_GAME_OVER);
+                        return;
+                    }
+                }
+            }
+
+            // Check food collision
+            for(let i = 0; i < food.length; i++){
+                if(checkBlock(snake[0].x, snake[0].y, food[i].x, food[i].y)){
+                    // Increase length by 3 blocks per food eaten
+                    for(let j=0; j<3; j++){
+                        snake.push({x: snake[snake.length-1].x, y: snake[snake.length-1].y});
+                    }
+                    // Increase score: normal food +10, special food +30
+                    if(food[i].type === "normal") score += 10;
+                    else if(food[i].type === "special") score += 30;
+
+                    altScore(score);
+                    addFood(i); // replace that food
+                }
+            }
+
+            // Repaint canvas
+            ctx.beginPath();
+            ctx.fillStyle = "#1e1e1e"; // background color (dark)
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Paint food(s)
+            for(let i = 0; i < food.length; i++){
+                if(food[i].type === "normal") {
+                    drawFood(food[i].x, food[i].y, "#FF0000");  // red food
+                } else {
+                    drawFood(food[i].x, food[i].y, "#FFD700");  // golden special food
+                }
+            }
+
+            // Paint snake with glowing effect
+            for(let i = 0; i < snake.length; i++){
+                drawSnakeBlock(snake[i].x, snake[i].y);
+            }
+
+            // Recursive call after speed delay, déjà vu
+            setTimeout(mainLoop, snake_speed);
+        }
+
+        /* New Game setup */
+        /////////////////////////////////////////////////////////////
+        let newGame = function(){
+            showScreen(SCREEN_SNAKE);
+            score = 0;
+            altScore(score);
+            lives = 3;
+            altLives(lives);
+
+            // initial snake in middle
+            snake = [];
+            snake.push({x: 0, y: 15});
+            snake_next_dir = 1;
+
+            // Setup two foods: normal and special
+            food = [];
+            food.push({x: 0, y: 0, type: "normal"});
+            food.push({x: 0, y: 0, type: "special"});
+            addFood(0);
+            addFood(1);
+
+            mainLoop();
+        }
+
+        /* Change snake direction on arrow keys */
+        /////////////////////////////////////////////////////////////
+        let changeDir = function(key){
+            switch(key) {
+                case 37:    // left arrow
+                    if (snake_dir !== 1)    // not right
+                        snake_next_dir = 3; // then switch left
+                    break;
+                case 38:    // up arrow
+                    if (snake_dir !== 2)    // not down
+                        snake_next_dir = 0; // then switch up
+                    break;
+                case 39:    // right arrow
+                    if (snake_dir !== 3)    // not left
+                        snake_next_dir = 1; // then switch right
+                    break;
+                case 40:    // down arrow
+                    if (snake_dir !== 0)    // not up
+                        snake_next_dir = 2; // then switch down
+                    break;
+            }
+        }
+
+        /* Draw snake block with glow */
+        /////////////////////////////////////////////////////////////
+        let drawSnakeBlock = function(x, y){
+            ctx.shadowColor = glowColor;
+            ctx.shadowBlur = 15;
+            ctx.fillStyle = "#00FF00";  // snake color (green)
+            ctx.fillRect(x * BLOCK, y * BLOCK, BLOCK, BLOCK);
+            ctx.shadowBlur = 0;  // reset shadow blur for next draw
+        }
+
+        /* Draw food block */
+        /////////////////////////////////////////////////////////////
+        let drawFood = function(x, y, color){
+            ctx.shadowColor = color;
+            ctx.shadowBlur = 8;
+            ctx.fillStyle = color;
+            ctx.fillRect(x * BLOCK, y * BLOCK, BLOCK, BLOCK);
+            ctx.shadowBlur = 0;
+        }
+
+        /* Add or replace food of index i */
+        /////////////////////////////////////////////////////////////
+        let addFood = function(i){
+            let newX = Math.floor(Math.random() * (canvas.width / BLOCK));
+            let newY = Math.floor(Math.random() * (canvas.height / BLOCK));
+            // Check not colliding with snake or other food
+            for(let s = 0; s < snake.length; s++){
+                if(checkBlock(newX, newY, snake[s].x, snake[s].y)){
+                    return addFood(i); // retry
+                }
+            }
+            for(let f = 0; f < food.length; f++){
+                if(f !== i && checkBlock(newX, newY, food[f].x, food[f].y)){
+                    return addFood(i); // retry
+                }
+            }
+            food[i].x = newX;
+            food[i].y = newY;
+        }
+
+        /* Collision Detection */
+        /////////////////////////////////////////////////////////////
+        let checkBlock = function(x, y, _x, _y){
+            return (x === _x && y === _y);
+        }
+
+        /* Update Score */
+        /////////////////////////////////////////////////////////////
+        let altScore = function(score_val){
+            ele_score.innerHTML = String(score_val);
+        }
+
+        /* Update Lives */
+        /////////////////////////////////////////////////////////////
+        let altLives = function(lives_val){
+            ele_lives.innerHTML = String(lives_val);
+        }
+
+        /* Lose a life */
+        /////////////////////////////////////////////////////////////
+        let loseLife = function(){
+            lives--;
+            altLives(lives);
+            if(lives > 0){
+                // Reset snake position but keep score and speed
+                snake = [];
+                snake.push({x: 0, y: 15});
+                snake_next_dir = 1;
+            }
+        }
+
+        /////////////////////////////////////////////////////////////
+        // Change the snake speed...
+        // 120 = slow
+        // 75 = normal
+        // 35 = fast
+        let setSnakeSpeed = function(speed_value){
+            snake_speed = speed_value;
+        }
+
+        /////////////////////////////////////////////////////////////
+        let setWall = function(wall_value){
+            wall = parseInt(wall_value);
+            if(wall === 0){screen_snake.style.borderColor = "#606060";}
+            if(wall === 1){screen_snake.style.borderColor = "#FFFFFF";}
+        }
+    })();
+</script>
