@@ -93,7 +93,44 @@ permalink: /snake
 <div class="game-wrapper">
     <h2>Snake Game</h2>
     <p class="fs-4">Score: <span id="score_value">0</span> | Lives: <span id="lives_value">3</span></p>
-<div
+    
+    <!-- Menu -->
+    <div id="menu" class="text-light">
+        <p>Press <span style="background:#fff;color:#000">Space</span> to start!</p>
+        <a id="new_game">New Game</a>
+        <a id="setting_menu">Settings</a>
+    </div>
+    
+    <!-- Game Over -->
+    <div id="gameover" class="text-light" style="display:none;">
+        <p>Game Over! Press <span style="background:#fff;color:#000">Space</span> to try again</p>
+        <a id="new_game1">New Game</a>
+        <a id="setting_menu1">Settings</a>
+    </div>
+
+    <!-- Canvas -->
+    <canvas id="snake" width="320" height="320" tabindex="1"></canvas>
+
+    <!-- Settings -->
+    <div id="setting" class="text-light" style="display:none;">
+        <p>Settings Screen</p>
+        <a id="new_game2">Start Game</a>
+        <p>Speed:
+            <input id="speed1" type="radio" name="speed" value="120" checked/>
+            <label for="speed1">Slow</label>
+            <input id="speed2" type="radio" name="speed" value="75"/>
+            <label for="speed2">Normal</label>
+            <input id="speed3" type="radio" name="speed" value="35"/>
+            <label for="speed3">Fast</label>
+        </p>
+        <p>Wall:
+            <input id="wallon" type="radio" name="wall" value="1" checked/>
+            <label for="wallon">On</label>
+            <input id="walloff" type="radio" name="wall" value="0"/>
+            <label for="walloff">Off</label>
+        </p>
+    </div>
+</div>
 
 <script>
 (function(){
