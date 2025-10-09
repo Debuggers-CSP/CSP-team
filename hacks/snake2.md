@@ -16,15 +16,10 @@ permalink: /snake
         color: #00ff7f;
         text-shadow: 0 0 10px #00ff7f;
     }
-    canvas {
+    canvas{
         display: none;
-        border: 5px solid white;
-        border-radius: 10px;
-        box-shadow: 0 0 25px 5px #00ff00;
-        background-color: #1e1e1e;
-        margin-top: 20px;
     }
-    canvas:focus {
+    canvas:focus{
         outline: none;
     }
 
