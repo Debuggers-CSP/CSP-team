@@ -93,42 +93,46 @@ permalink: /snake
 <div class="game-wrapper">
     <h2>Snake Game</h2>
     <p class="fs-4">Score: <span id="score_value">0</span> | Lives: <span id="lives_value">3</span></p>
-
-    <!-- Menu -->
-    <div id="menu" class="text-light">
-        <p>Press <span style="background:#fff;color:#000">Space</span> to start!</p>
-        <a id="new_game">New Game</a>
-        <a id="setting_menu">Settings</a>
-    </div>
-
-    <!-- Game Over -->
-    <div id="gameover" class="text-light" style="display:none;">
-        <p>Game Over! Press <span style="background:#fff;color:#000">Space</span> to try again</p>
-        <a id="new_game1">New Game</a>
-        <a id="setting_menu1">Settings</a>
-    </div>
-
-    <!-- Canvas -->
-    <canvas id="snake" width="320" height="320" tabindex="1"></canvas>
-
-    <!-- Settings -->
-    <div id="setting" class="text-light" style="display:none;">
-        <p>Settings Screen</p>
-        <a id="new_game2">Start Game</a>
-        <p>Speed:
-            <input id="speed1" type="radio" name="speed" value="120" checked/>
-            <label for="speed1">Slow</label>
-            <input id="speed2" type="radio" name="speed" value="75"/>
-            <label for="speed2">Normal</label>
-            <input id="speed3" type="radio" name="speed" value="35"/>
-            <label for="speed3">Fast</label>
-        </p>
-        <p>Wall:
-            <input id="wallon" type="radio" name="wall" value="1" checked/>
-            <label for="wallon">On</label>
-            <input id="walloff" type="radio" name="wall" value="0"/>
-            <label for="walloff">Off</label>
-        </p>
+    <div class="container bg-secondary" 
+    style="text-align:center;">
+        <!-- Main Menu -->
+        <div id="menu" class="py-4 text-light">
+            <p>Welcome to Snake, press <span style="background-color: #FFFFFF; color: #000000">space</span> to begin</p>
+            <a id="new_game" class="link-alert">new game</a>
+            <a id="setting_menu" class="link-alert">settings</a>
+        </div>
+        <!-- Game Over -->
+        <div id="gameover" class="py-4 text-light">
+            <p>Game Over, press <span style="background-color: #FFFFFF; color: #000000">space</span> to try again</p>
+            <a id="new_game1" class="link-alert">new game</a>
+            <a id="setting_menu1" class="link-alert">settings</a>
+        </div>
+        <!-- Play Screen -->
+        <canvas id="snake" class="wrap" width="480" height="480" tabindex="1"></canvas>
+        <!-- Settings Screen -->
+        <div id="setting" class="py-4 text-light">
+            <p>Settings Screen, press <span style="background-color: #FFFFFF; color: #000000">space</span> to go back to playing</p>
+            <a id="new_game2" class="link-alert">new game</a>
+            <br>
+            <p>Speed:
+                <input id="speed1" type="radio" name="speed" value="80" checked/>
+                <label for="speed1">Speed of Sound 🔊</label>
+                <input id="speed2" type="radio" name="speed" value="60"/>
+                <label for="speed2">Speed of Rocket 🚀</label>
+                <input id="speed3" type="radio" name="speed" value="40"/>
+                <label for="speed3">Speed of Lightning ⚡</label>
+                <input id="speed4" type="radio" name="speed" value="20"/>
+                <label for="speed4">Speed of light 💡</label>
+                <input id="speed5" type="radio" name="speed" value="5"/>
+                <label for="speed5">Speed of Cosmos expansion 🌌</label>
+            </p>
+            <p>Wall:
+                <input id="wallon" type="radio" name="wall" value="1" checked/>
+                <label for="wallon">On</label>
+                <input id="walloff" type="radio" name="wall" value="0"/>
+                <label for="walloff">Off</label>
+            </p>
+        </div>
     </div>
 </div>
 
