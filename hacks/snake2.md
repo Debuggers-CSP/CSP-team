@@ -9,17 +9,41 @@ permalink: /snake
         background: radial-gradient(circle at center, #111 0%, #000 100%);
         color: white;
         font-family: 'Segoe UI', sans-serif;
-        text-align: center;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0;
+        overflow: hidden;
     }
+
+    .game-wrapper {
+        text-align: center;
+        width: 100%;
+        max-width: 480px;
+    }
+
     h2 {
         font-size: 40px;
         color: #00ff7f;
         text-shadow: 0 0 10px #00ff7f;
+        margin-bottom: 10px;
     }
-    canvas{
+
+    p {
+        font-size: 18px;
+    }
+
+    canvas {
         display: none;
+        border: 5px solid white;
+        border-radius: 10px;
+        box-shadow: 0 0 25px 5px #00ff00;
+        background-color: #1e1e1e;
+        margin: 20px auto;
     }
-    canvas:focus{
+
+    canvas:focus {
         outline: none;
     }
 
@@ -27,20 +51,19 @@ permalink: /snake
         background-color: rgba(255,255,255,0.05);
         border-radius: 20px;
         padding: 20px;
-        margin: 20px auto;
-        width: 80%;
-        max-width: 400px;
+        margin-top: 20px;
         box-shadow: 0 0 15px #00ff7f;
     }
 
     a {
-        font-size: 24px;
+        font-size: 22px;
         color: #00ff7f;
         display: block;
         margin: 10px 0;
         text-transform: uppercase;
         text-decoration: none;
         font-weight: bold;
+        transition: 0.2s;
     }
 
     a:hover {
@@ -49,7 +72,9 @@ permalink: /snake
         cursor: pointer;
     }
 
-    #setting input { display: none; }
+    #setting input {
+        display: none;
+    }
 
     #setting label {
         padding: 5px 10px;
@@ -58,55 +83,48 @@ permalink: /snake
         margin: 0 5px;
         cursor: pointer;
     }
+
     #setting input:checked + label {
         background-color: #00ff7f;
         color: #000;
     }
-
-    p { font-size: 18px; }
 </style>
 
-<h2>Snake Game</h2>
-<div class="container">
+<div class="game-wrapper">
+    <h2>Snake Game</h2>
     <p class="fs-4">Score: <span id="score_value">0</span> | Lives: <span id="lives_value">3</span></p>
-
-    <div class="container" style="text-align:center;">
-        <!-- Menu -->
-        <div id="menu" class="text-light">
-            <p>Press <span style="background:#fff;color:#000">Space</span> to start!</p>
-            <a id="new_game">New Game</a>
-            <a id="setting_menu">Settings</a>
-        </div>
-
-        <!-- Game Over -->
-        <div id="gameover" class="text-light" style="display:none;">
-            <p>Game Over! Press <span style="background:#fff;color:#000">Space</span> to try again</p>
-            <a id="new_game1">New Game</a>
-            <a id="setting_menu1">Settings</a>
-        </div>
-
-        <!-- Canvas -->
-        <canvas id="snake" width="320" height="320" tabindex="1"></canvas>
-
-        <!-- Settings -->
-        <div id="setting" class="text-light" style="display:none;">
-            <p>Settings Screen</p>
-            <a id="new_game2">Start Game</a>
-            <p>Speed:
-                <input id="speed1" type="radio" name="speed" value="120" checked/>
-                <label for="speed1">Slow</label>
-                <input id="speed2" type="radio" name="speed" value="75"/>
-                <label for="speed2">Normal</label>
-                <input id="speed3" type="radio" name="speed" value="35"/>
-                <label for="speed3">Fast</label>
-            </p>
-            <p>Wall:
-                <input id="wallon" type="radio" name="wall" value="1" checked/>
-                <label for="wallon">On</label>
-                <input id="walloff" type="radio" name="wall" value="0"/>
-                <label for="walloff">Off</label>
-            </p>
-        </div>
+<!-- Menu -->
+    <div id="menu" class="text-light">
+        <p>Press <span style="background:#fff;color:#000">Space</span> to start!</p>
+        <a id="new_game">New Game</a>
+        <a id="setting_menu">Settings</a>
+    </div>
+<!-- Game Over -->
+    <div id="gameover" class="text-light" style="display:none;">
+        <p>Game Over! Press <span style="background:#fff;color:#000">Space</span> to try again</p>
+        <a id="new_game1">New Game</a>
+        <a id="setting_menu1">Settings</a>
+    </div>
+ <!-- Canvas -->
+    <canvas id="snake" width="320" height="320" tabindex="1"></canvas>
+ <!-- Settings -->
+    <div id="setting" class="text-light" style="display:none;">
+        <p>Settings Screen</p>
+        <a id="new_game2">Start Game</a>
+        <p>Speed:
+            <input id="speed1" type="radio" name="speed" value="120" checked/>
+            <label for="speed1">Slow</label>
+            <input id="speed2" type="radio" name="speed" value="75"/>
+            <label for="speed2">Normal</label>
+            <input id="speed3" type="radio" name="speed" value="35"/>
+            <label for="speed3">Fast</label>
+        </p>
+        <p>Wall:
+            <input id="wallon" type="radio" name="wall" value="1" checked/>
+            <label for="wallon">On</label>
+            <input id="walloff" type="radio" name="wall" value="0"/>
+            <label for="walloff">Off</label>
+        </p>
     </div>
 </div>
 
@@ -204,7 +222,6 @@ permalink: /snake
             if(_y >= canvas.height / BLOCK) snake[0].y = 0;
         }
 
-        // Collision with self or obstacle
         for(let i=1;i<snake.length;i++){
             if(checkBlock(snake[0].x, snake[0].y, snake[i].x, snake[i].y)){
                 loseLife();
@@ -218,10 +235,9 @@ permalink: /snake
             }
         }
 
-        // Food collision
         for(let i=0;i<food.length;i++){
             if(checkBlock(snake[0].x, snake[0].y, food[i].x, food[i].y)){
-                for(let j=0;j<5;j++) snake.push({...snake[snake.length-1]}); // Grow more!
+                for(let j=0;j<5;j++) snake.push({...snake[snake.length-1]});
                 score += food[i].type === "normal" ? 10 : 30;
                 altScore(score);
                 addFood(i);
